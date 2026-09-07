@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/jpeg" href="/favicon.jpeg" />
+    <link rel="apple-touch-icon" href="/favicon.jpeg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Dancing+Script:wght@400;700&family=Lobster&family=Merriweather:wght@400;700&family=Pacifico&family=Permanent+Marker&family=Playfair+Display:wght@400;700&family=Raleway:wght@400;700&family=Satisfy&display=swap" rel="stylesheet" />
+    <title>VentSpace</title>
+    <script>
+      // Apply saved theme BEFORE first paint (prevents dark-mode flash)
+      try {
+        var t = localStorage.getItem('ventspace_theme');
+        if (!t) t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        if (t === 'dark') document.documentElement.classList.add('dark');
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <script>
+      // Prevent browser from restoring scroll position on refresh
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+      }
+      window.scrollTo(0, 0);
+      document.addEventListener('DOMContentLoaded', function() { window.scrollTo(0, 0); });
+      window.addEventListener('load', function() { window.scrollTo(0, 0); });
+      // Fallback: some browsers restore scroll slightly after load
+      window.addEventListener('load', function() {
+        setTimeout(function() { window.scrollTo(0, 0); }, 0);
+        setTimeout(function() { window.scrollTo(0, 0); }, 50);
+      });
+    </script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

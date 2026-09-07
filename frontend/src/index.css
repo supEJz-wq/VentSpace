@@ -1,0 +1,376 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============ BASE ============ */
+::selection {
+  background: rgba(192, 38, 211, 0.2);
+  color: #701a75;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #e9d5ff, #fbcfe8);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #d8b4fe, #f9a8d4);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+/* ============ GLASS CARD SYSTEM ============ */
+@layer components {
+  .glass-card {
+    @apply bg-white/60 backdrop-blur-xl rounded-3xl shadow-glass border border-white/60;
+  }
+}
+
+/* ============ ANIMATIONS ============ */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.6;
+  }
+
+  50% {
+    transform: translateY(-20px) rotate(10deg);
+    opacity: 0.8;
+  }
+}
+
+@keyframes bounce-soft {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+/* Smooth page transition */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Staggered card entrance */
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-bounce-soft {
+  animation: bounce-soft 2s ease-in-out infinite;
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.4s ease-out forwards;
+}
+
+.animate-popIn {
+  animation: popIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   🌙 DARK MODE — global override layer
+   Targets the utility patterns used app-wide so every screen
+   themes without touching each component file.
+   ══════════════════════════════════════════════════════════════ */
+
+.dark {
+  color-scheme: dark;
+}
+
+/* ---- Page backgrounds (mesh gradient pages) ---- */
+.dark .min-h-screen.bg-gradient-to-br.from-purple-50 {
+  background-image: linear-gradient(135deg, #0e0a1f 0%, #171031 45%, #0b1126 100%);
+}
+
+/* ---- Glass surfaces: white translucents → deep-violet translucents ---- */
+.dark .bg-white\/55,
+.dark .bg-white\/60,
+.dark .bg-white\/70,
+.dark .bg-white\/80,
+.dark .bg-white\/90 {
+  background-color: rgba(28, 24, 56, 0.72);
+}
+.dark .bg-white\/50 { background-color: rgba(28, 24, 56, 0.5); }
+.dark .bg-white\/40 { background-color: rgba(28, 24, 56, 0.42); }
+.dark .bg-white\/30 { background-color: rgba(28, 24, 56, 0.32); }
+.dark .focus\:bg-white:focus { background-color: rgba(34, 29, 66, 0.92) !important; }
+.dark .hover\:bg-white\/70:hover { background-color: rgba(44, 38, 84, 0.75); }
+
+/* ---- Text grays ---- */
+.dark .text-gray-800 { color: #eceaf8; }
+.dark .text-gray-700 { color: #d3cfe9; }
+.dark .text-gray-600 { color: #b7b1d8; }
+.dark .text-gray-500 { color: #9891bf; }
+.dark .text-gray-400 { color: #807aa6; }
+
+/* ---- Borders ---- */
+.dark .border-white\/50,
+.dark .border-white\/60,
+.dark .border-white\/70 { border-color: rgba(167, 139, 250, 0.18); }
+.dark .border-purple-100,
+.dark .border-purple-100\/60,
+.dark .border-purple-100\/70 { border-color: rgba(167, 139, 250, 0.22); }
+
+/* ---- Inputs ---- */
+.dark input::placeholder,
+.dark textarea::placeholder { color: #6f689c; }
+.dark input,
+.dark textarea { color-scheme: dark; }
+.dark .shadow-inner { --tw-shadow-colored: none; box-shadow: inset 0 1px 3px rgba(0,0,0,.35); }
+.dark .shadow-inner.shadow-inner { box-shadow: inset 0 1px 3px rgba(0,0,0,.35); }
+
+/* ---- glass-card system ---- */
+.dark .glass-card {
+  background-color: rgba(28, 24, 56, 0.72);
+  border-color: rgba(167, 139, 250, 0.18);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+.dark .shadow-glass {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+.dark .shadow-glass-lg {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* ---- Scrollbar ---- */
+.dark ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #4c3d82, #6d3d78);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #63519f, #8a4f96);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.dark ::selection {
+  background: rgba(217, 70, 239, 0.3);
+  color: #f5d0fe;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   🗺️ FREESPACE MAP — custom pink/violet pins & popups
+   ══════════════════════════════════════════════════════════════ */
+
+.fs-pin {
+  width: 26px;
+  height: 26px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: linear-gradient(135deg, #ec4899 0%, #a855f7 60%, #8b5cf6 100%);
+  border: 2.5px solid rgba(255, 255, 255, 0.9);
+  box-shadow:
+    0 4px 14px rgba(168, 85, 247, 0.5),
+    0 0 0 4px rgba(236, 72, 153, 0.15);
+  cursor: pointer;
+  padding: 0;
+  animation: fs-pin-drop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+.fs-pin:hover,
+.fs-pin:focus-visible {
+  transform: rotate(-45deg) scale(1.18);
+  box-shadow:
+    0 6px 20px rgba(168, 85, 247, 0.65),
+    0 0 0 6px rgba(236, 72, 153, 0.2);
+}
+
+@keyframes fs-pin-drop {
+  from {
+    opacity: 0;
+    translate: 0 -16px;
+    scale: 0.4;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+}
+
+/* Popup — dark glass so it reads well over any map tiles */
+.fs-popup { padding: 2px; }
+.fs-popup-wrap {
+  padding: 4px;
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+}
+.fs-popup-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.fs-popup-emoji {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.fs-popup-name {
+  font-weight: 800;
+  font-size: 0.84rem;
+  color: #f0abfc;
+  margin-bottom: 0;
+  overflow-wrap: anywhere;
+}
+.fs-popup-msg {
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: #eceaf8;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-width: 250px;
+  margin-top: 4px;
+}
+.fs-popup-exp {
+  margin-top: 8px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #c4b5fd;
+}
+
+/* Border style variations for popups and preview cards */
+.fs-border-solid {
+  border: 1.5px solid currentColor;
+}
+.fs-border-glowing {
+  border: 1.5px solid currentColor;
+}
+.fs-border-dashed {
+  border: 2px dashed currentColor;
+}
+.fs-border-double {
+  border: 3px double currentColor;
+}
+.fs-border-gradient {
+  border: 2px solid currentColor;
+  position: relative;
+}
+
+/* Custom interactive note pin */
+.fs-pin-custom {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fs-pin-drop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
+}
+.fs-pin-custom span {
+  transform: rotate(45deg);
+  font-size: 15px;
+  line-height: 1;
+  display: inline-block;
+  user-select: none;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+}
+.fs-pin-custom:hover,
+.fs-pin-custom:focus-visible {
+  transform: rotate(-45deg) scale(1.22);
+  z-index: 50;
+}
+
+.maplibregl-popup-content {
+  border-radius: 1.1rem !important;
+  padding: 12px 14px !important;
+  background: rgba(28, 24, 56, 0.94) !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35) !important;
+  backdrop-filter: blur(12px) !important;
+}
+.maplibregl-popup-tip {
+  border-top-color: rgba(28, 24, 56, 0.94) !important;
+  border-bottom-color: rgba(28, 24, 56, 0.94) !important;
+  border-left-color: rgba(28, 24, 56, 0.94) !important;
+  border-right-color: rgba(28, 24, 56, 0.94) !important;
+}
+
+/* Location search pulse indicator */
+.fs-search-pin {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f43f5e 0%, #d946ef 100%);
+  border: 3px solid #ffffff;
+  box-shadow: 0 0 16px rgba(217, 70, 239, 0.8);
+  pointer-events: none;
+}
+.fs-search-pin::after {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2.5px solid #d946ef;
+  opacity: 0.8;
+  animation: fs-search-pulse 1.8s infinite cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes fs-search-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+/* ═══ POSTCARD 3D TILT ═══ */
+.postcard-tilt {
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease-out;
+  will-change: transform;
+}
