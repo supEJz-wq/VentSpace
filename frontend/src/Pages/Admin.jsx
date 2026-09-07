@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, LogOut, BookOpen, MessageSquare, Image, BarChart3, FileText, Map as MapIcon, Settings as SettingsIcon, Eye, EyeOff, KeyRound } from 'lucide-react';
+import { Shield, LogOut, BookOpen, MessageSquare, Image, BarChart3, FileText, Map as MapIcon, Settings as SettingsIcon, Eye, EyeOff, KeyRound, ClipboardPaste } from 'lucide-react';
 import useIsDark from '../lib/useIsDark';
 import Logo from '../Components/Logo';
 import ThemeToggle from '../Components/ThemeToggle';
@@ -199,6 +199,27 @@ const Admin = () => {
     }
   };
 
+  // Login-screen clipboard flow: server auto-copies the password to the OS
+  // clipboard on boot/logout (local dev = same machine). This pastes it
+  // straight into the password field — no server roundtrip needed.
+  const handlePasteClipboard = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text && text.trim()) {
+        let clean = text.trim();
+        if ((clean.startsWith('"') && clean.endsWith('"')) || (clean.startsWith("'") && clean.endsWith("'"))) {
+          clean = clean.slice(1, -1).trim();
+        }
+        setPasswordInput(clean);
+        setError('');
+      } else {
+        setError('Clipboard is empty. The server copies the password on start/logout — then press this again.');
+      }
+    } catch {
+      setError('Browser blocked clipboard read. Just press Ctrl+V directly into the password field.');
+    }
+  };
+
   const handleDeletePost = async (postId) => {
     if (!window.confirm('Are you sure you want to delete this post permanently?')) return;
     await deletePost(postId);
@@ -390,12 +411,20 @@ const Admin = () => {
               </div>
             )}
 
+            <button
+              type="button"
+              onClick={handlePasteClipboard}
+              className={`w-full py-3 rounded-2xl font-bold text-xs tracking-wide transition-all duration-300 flex items-center justify-center gap-2 ${isDark ? 'bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 hover:text-white' : 'bg-gray-100 border border-gray-200 text-gray-500 hover:bg-gray-200 hover:text-gray-700'}`}
+            >
+              <ClipboardPaste size={14} /> Copy clipboard password into field
+            </button>
+
             <div className={`px-4 py-3 rounded-xl text-xs leading-relaxed flex items-start gap-2 ${isDark ? 'bg-white/5 border border-white/10 text-gray-400' : 'bg-gray-50 border border-gray-200 text-gray-500'}`}>
               <KeyRound size={14} className="mt-0.5 shrink-0" />
               <span>
-                Paste failing? Open <code className="font-bold">.env</code> in the project root and try
-                the <code className="font-bold">ADMIN_BACKUP_PASSWORD</code> (2nd password) — it always
-                works even after logout rotates the primary one. Paste without extra spaces or quotes.
+                Clipboard not working? Open <code className="font-bold">.env</code> and use
+                the <code className="font-bold">ADMIN_BACKUP_PASSWORD</code> instead — paste
+                without extra spaces or quotes.
               </span>
             </div>
 

@@ -11,15 +11,22 @@ node_modules
 dist
 dist-ssr
 *.local
+
+# Environment files (secrets, API keys, passwords)
 .env
 .env.*
+!.env.example
 .env.local
+.env.development
+.env.production
+.env.staging
 
 # Supabase database/migration files
 supabase-schema.sql
 supabase-patch.sql
 supabase-patch-images.sql
 migrations/
+backend/supabase/
 
 # Editor directories and files
 .vscode/*
@@ -31,3 +38,32 @@ migrations/
 *.njsproj
 *.sln
 *.sw?
+
+# Playwright
+/qa/automation/test-results/
+/qa/automation/playwright-report/
+/blob-report/
+/test-results/
+/playwright-report/
+/playwright/.cache/
+/playwright/.auth/
+
+# Private admin credentials - never commit
+ADMIN-PRIVATE.md
+
+# Database backups
+*.sql.gz
+*.sql.bak
+backups/
+
+# OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDE
+*.code-workspace
+.history/
+
+# Build artifacts with potential secrets
+*.map

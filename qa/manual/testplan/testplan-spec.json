@@ -1,0 +1,383 @@
+{
+  "page": {
+    "width_mm": 210,
+    "height_mm": 297,
+    "margins_mm": { "top": 25, "bottom": 25, "left": 20, "right": 20 }
+  },
+  "header": "VentSpace — Test Plan v1.0",
+  "footer_page_numbers": true,
+  "styles": [
+    {
+      "name": "TitleStyle",
+      "base": "Normal",
+      "font": "Calibri",
+      "size_pt": 28,
+      "bold": true,
+      "color": "7C3AED"
+    },
+    {
+      "name": "SubtitleStyle",
+      "base": "Normal",
+      "font": "Calibri",
+      "size_pt": 14,
+      "bold": false,
+      "color": "6B7280"
+    },
+    {
+      "name": "SectionStyle",
+      "base": "Normal",
+      "font": "Calibri",
+      "size_pt": 14,
+      "bold": true,
+      "color": "1F2937"
+    }
+  ],
+  "blocks": [
+    {"type": "heading", "text": "TEST PLAN", "level": 1},
+    {"type": "paragraph", "style": "TitleStyle", "text": "VentSpace Web Application"},
+    {"type": "paragraph", "style": "SubtitleStyle", "text": "Comprehensive Functional Test Plan"},
+    {"type": "paragraph", "text": ""},
+    {"type": "table", "header": ["Item", "Details"], "rows": [
+      ["Project", "VentSpace — Anonymous Venting/Journaling Platform"],
+      ["Version", "1.0"],
+      ["Author", "Errol Jay E DePaz (QA Engineer / Developer)"],
+      ["Date", "September 4, 2026"],
+      ["Status", "Draft"]
+    ], "style": "Light Grid Accent 1", "header_bold": true},
+    {"type": "page_break"},
+
+    {"type": "heading", "text": "1. Introduction", "level": 1},
+    {"type": "paragraph", "text": "This test plan describes the approach, scope, schedule, and resources for testing the VentSpace web application — an anonymous venting/journaling platform built with React + Vite (frontend) and Express + Supabase (backend). The application features a feed with mood filters, a postcard creator and wall, a map with community notes, and an admin panel for content moderation."},
+    {"type": "paragraph", "text": "The goal is to ensure all features work correctly across supported browsers, that the user experience is smooth and intuitive, and that security measures (rate limiting, input sanitization, admin authentication) function as expected before production release."},
+    {"type": "page_break"},
+
+    {"type": "heading", "text": "2. Features to Be Tested", "level": 1},
+
+    {"type": "heading", "text": "2.1 Landing Page", "level": 2},
+    {"type": "bullet_list", "items": [
+      "Landing page loads with VentSpace branding, tagline, and feature cards (Anonymous, Safe Space, Real People, No Judgment)",
+      "Background images and floating emoji animations render correctly",
+      "Continue button opens the Community Guidelines (Rules) modal",
+      "Rules modal displays 4 community guidelines with icons",
+      "I Agree & Continue button navigates to Dashboard (/home)",
+      "Go Back button closes the modal and returns to landing page",
+      "Responsive layout on mobile, tablet, and desktop viewports"
+    ]},
+
+    {"type": "heading", "text": "2.2 Dashboard / Feed", "level": 2},
+    {"type": "bullet_list", "items": [
+      "Feed loads and displays posts from the database (newest first)",
+      "Empty state shows when no posts exist (\"No thoughts yet\" message + Share a Thought button)",
+      "Post Something button opens the PostModal for creating a new post",
+      "Mood Filter sidebar with filters: All Thoughts, My Posts, Happy, Sad, Angry, Hopeful, Anxious",
+      "Mood filter correctly filters posts by selected mood",
+      "Post count badges display next to each mood filter option",
+      "Today's Vibe donut chart renders mood distribution (Recharts PieChart)",
+      "Search bar filters posts by text content, moods, or topics",
+      "Clear search button (✕) appears when search text is entered",
+      "Pagination controls (4 posts per page) with page navigation",
+      "Right Sidebar: Recent Topics (hashtag-based) with clickable filtering",
+      "Right Sidebar: Recent Activity showing top contributors with mood emojis",
+      "Theme Toggle switches between light and dark mode",
+      "Header navigation: Postcard, Wall, Map buttons navigate correctly",
+      "VentSpace logo in header returns to Dashboard feed",
+      "Have an Idea? button opens BugReportModal in suggestion mode",
+      "Got a Bug? button opens BugReportModal in bug mode"
+    ]},
+
+    {"type": "heading", "text": "2.3 Post Creation & Interaction", "level": 2},
+    {"type": "bullet_list", "items": [
+      "PostModal opens with mood selection (Happy, Sad, Angry, Hopeful, Anxious)",
+      "Username input with name-locking logic (locked for auto_delete_hours duration)",
+      "Text input with character validation",
+      "Submit creates a post visible in the feed",
+      "Rate limiting: maximum 5 posts per rolling window per device",
+      "Post displays mood badge (colored pill + emoji), username, timestamp, and post text",
+      "Text truncation at 150 characters with Read More / Show Less toggle",
+      "Like button increments like count (one like per device)",
+      "Reaction picker (❤️ 😂 😮 😢 😡 👏) with hover/click interaction",
+      "Reaction breakdown shows count per reaction type",
+      "Comment section: add comments with username and text",
+      "Nested replies: reply to a specific comment with @mention display",
+      "Comment reactions: react to individual comments with emoji picker",
+      "Delete own comment (tracked by device ID)",
+      "Report post button (flag icon) — reports stored in reported_posts table",
+      "Un-report post button to undo a report",
+      "Delete own post button (only for posts created by current device)",
+      "Background floating emojis animate behind posts"
+    ]},
+
+    {"type": "heading", "text": "2.4 Postcard Creator", "level": 2},
+    {"type": "bullet_list", "items": [
+      "Page loads with Back to Feed navigation",
+      "Content tab: To input (max 60 chars), Message textarea (max 500 chars), From input (max 60 chars)",
+      "Style tab: background presets (12 solid colors), gradient presets (8 gradients)",
+      "Style tab: text color presets (8 colors)",
+      "Style tab: font selection (13 fonts: Georgia, Inter, Comic Sans, Times New Roman, Caveat, etc.)",
+      "Style tab: text alignment (left, center, right)",
+      "Style tab: border style selection (elegant, none, dashed)",
+      "Sticker selection: 15 emoji stickers (🌸 💌 ✨ 🌹 🦋 🌙 ❤️ 🌿 🍃 🕊️ 🌼 💫 🎀 🌺 🫶)",
+      "Live Preview: real-time postcard preview with applied styles",
+      "Download button: saves postcard as image (html2canvas)",
+      "Share to Wall button: submits postcard to database and postcards table",
+      "Reset button: clears all fields and resets to defaults",
+      "Theme toggle available on the page"
+    ]},
+
+    {"type": "heading", "text": "2.5 Postcard Wall", "level": 2},
+    {"type": "bullet_list", "items": [
+      "Page loads with Back to Feed navigation and postcard count",
+      "Postcards displayed in a grid with To, From, Message, Stickers, and time ago",
+      "Search by name (To or From) filters postcards in real-time",
+      "Pagination for postcards (page 1, 2, etc.)",
+      "Create Postcard button navigates to Postcard Creator page",
+      "Mock/demo postcards display when database is empty",
+      "Theme toggle available on the page"
+    ]},
+
+    {"type": "heading", "text": "2.6 Map Page (FreeSpace Map)", "level": 2},
+    {"type": "bullet_list", "items": [
+      "MapLibre GL map loads centered on the Philippines (lat 12.87, lng 122.94, zoom 5.05)",
+      "Map restricted to Philippines bounds (lat 4.4–21.2, lng 115.0–131.0)",
+      "Popular locations quick-jump: Metro Manila, Cebu City, Baguio City, Davao City, Boracay, Siargao",
+      "Search location input with geocoding",
+      "Jump to My GPS Location button (uses browser geolocation)",
+      "Click on map to place a note pin",
+      "Note creation: name, message, theme selection (Sakura Rose, Ocean Blue, etc.), font selection (8 fonts)",
+      "Map notes display as styled popups on pin click",
+      "Notes auto-expire after 5 hours (server-side TTL)",
+      "Rate limiting: max 10 notes per device per hour",
+      "Back to Feed navigation",
+      "Theme toggle available on the page"
+    ]},
+
+    {"type": "heading", "text": "2.7 Admin Panel", "level": 2},
+    {"type": "bullet_list", "items": [
+      "Admin login page with password input and Copy Password to Clipboard button",
+      "Enter Dashboard button (disabled until password entered)",
+      "Server-side password verification (password never exposed to client bundle)",
+      "7 admin tabs: Dashboard (Command Center), Posts, Map Notes, Postcards, Feedback, Settings, Guidelines",
+      "Dashboard tab: live stats, community overview, quick actions, online user count (presence tracking)",
+      "Posts tab: moderate feed posts — review reports, delete posts, reset user identities",
+      "Map Notes tab: view all map pins, delete individual notes or all notes",
+      "Postcards tab: view all postcards, delete individual or all postcards",
+      "Feedback tab: view bug reports and feature suggestions, delete individual or batch",
+      "Settings tab: configure auto-delete hours (1–168), manage blacklisted words array",
+      "Settings tab: Danger Zone — unlock all names, delete all posts, delete all map notes, hard reset database",
+      "Guidelines tab: house rules and admin tool documentation",
+      "Admin Logout: resets admin password and generates a new one (copied to clipboard)",
+      "Rate limiting on admin login: max 10 attempts per 15 minutes"
+    ]},
+
+    {"type": "heading", "text": "2.8 Bug Report / Feature Suggestion", "level": 2},
+    {"type": "bullet_list", "items": [
+      "BugReportModal opens in bug mode (from Got a Bug? button) or suggestion mode (from Have an Idea? button)",
+      "Reporter name auto-populated from device identity",
+      "Text input for bug/suggestion description (max 1000 chars)",
+      "Optional screenshot upload (image file attachment)",
+      "Submit sends report to backend with type, text, reporter name, device ID, and optional image",
+      "Success confirmation displayed after submission",
+      "Rate limiting on bug report submissions"
+    ]},
+
+    {"type": "heading", "text": "2.9 Cross-Cutting Concerns", "level": 2},
+    {"type": "bullet_list", "items": [
+      "Dark mode / Light mode toggle persists across all pages",
+      "Responsive design: mobile (320px+), tablet (768px+), desktop (1024px+, xl: 1280px+)",
+      "Auto-delete: posts and map notes automatically expire based on configurable auto_delete_hours setting",
+      "Blacklisted words: content with banned words is rejected in posts, comments, usernames, and map notes",
+      "Device-based identity: UUID stored in localStorage, used for name locking and post ownership",
+      "Rate limiting: 300 requests/15min (global), 30 writes/15min (write endpoints), 10 logins/15min",
+      "Input sanitization: HTML stripped, length capped, enum whitelisting on all user inputs",
+      "Supabase backend: RLS policies, cascade deletes on posts/comments/reports",
+      "Health check endpoint: GET /api/health returns { ok: true, uptime: N }",
+      "Automatic purge: server runs purge_expired_posts and purge_expired_map_notes every 15 minutes"
+    ]},
+    {"type": "page_break"},
+
+    {"type": "heading", "text": "3. Features Not to Be Tested", "level": 1},
+    {"type": "bullet_list", "items": [
+      "Performance / load testing (handled separately if needed)",
+      "Native mobile app version (web-only at this stage)",
+      "Payment or e-commerce functionality (not part of VentSpace)",
+      "Third-party Supabase infrastructure uptime (out of scope)",
+      "Browser extensions or integrations"
+    ]},
+    {"type": "page_break"},
+
+    {"type": "heading", "text": "4. Test Approach", "level": 1},
+    {"type": "paragraph", "text": "Testing will follow a structured manual testing approach supplemented by automated Playwright end-to-end tests."},
+
+    {"type": "heading", "text": "4.1 Test Types", "level": 2},
+    {"type": "table", "header": ["Test Type", "Description", "Priority"], "rows": [
+      ["Smoke Testing", "Verify all pages load and core navigation works", "High"],
+      ["Functional Testing", "Validate each feature against requirements", "High"],
+      ["UI/UX Testing", "Visual correctness, responsive layout, theme toggle", "Medium"],
+      ["Negative Testing", "Invalid inputs, empty fields, boundary values, XSS attempts", "High"],
+      ["Security Testing", "Admin auth, rate limiting, input sanitization, blacklisted words", "High"],
+      ["Regression Testing", "Ensure new changes don't break existing features", "Medium"],
+      ["Cross-Browser Testing", "Chrome, Firefox, Edge, Safari (latest 2 versions)", "Medium"],
+      ["Accessibility Testing", "Keyboard navigation, screen reader compatibility, ARIA labels", "Low"]
+    ], "style": "Light Grid Accent 1", "header_bold": true},
+
+    {"type": "heading", "text": "4.2 Test Techniques", "level": 2},
+    {"type": "bullet_list", "items": [
+      "Positive testing: valid inputs, expected user flows",
+      "Negative testing: invalid inputs, boundary values, error handling",
+      "Equivalence partitioning: grouping inputs into valid/invalid classes",
+      "Boundary value analysis: min/max character limits, rate limit thresholds",
+      "Exploratory testing: unscripted navigation to discover edge cases"
+    ]},
+
+    {"type": "heading", "text": "4.3 Automation", "level": 2},
+    {"type": "paragraph", "text": "Automated Playwright tests cover core flows and API endpoints. The test suite lives in qa/automation/ and includes:"},
+    {"type": "bullet_list", "items": [
+      "UI specs: landing, dashboard-feed, dashboard-post, dashboard-interactions, map, postcard, postcard-wall, admin, feedback, mobile, a11y",
+      "API specs: posts, postcards, map, meta, admin, comments, health",
+      "Page Objects: LandingPage, DashboardPage, MapPage, PostcardCreatorPage, PostcardWallPage, AdminPage, BasePage",
+      "Component helpers: Feed, Header, PostCard, PostModal, BugReportModal, MoodFilter, RightSidebar",
+      "API helpers: postsApi, postcardsApi, mapApi, settingsApi"
+    ]},
+    {"type": "page_break"},
+
+    {"type": "heading", "text": "5. Entry Criteria", "level": 1},
+    {"type": "numbered_list", "items": [
+      "Build deployed to QA environment (localhost:5173 frontend + localhost:3001 backend)",
+      "Feature code-complete and unit tested",
+      "Supabase database provisioned with required tables (posts, postcards, map_notes, bug_reports, reported_posts, device_identities, settings)",
+      "Environment variables configured (.env with Supabase keys and admin password)",
+      "Test cases reviewed and approved",
+      "All npm dependencies installed (node_modules present)"
+    ]},
+
+    {"type": "heading", "text": "6. Exit Criteria", "level": 1},
+    {"type": "numbered_list", "items": [
+      "100% of planned test cases executed",
+      "95% pass rate achieved",
+      "No open Critical or High severity bugs",
+      "All bugs logged with reproduction steps and severity",
+      "Test summary report completed"
+    ]},
+
+    {"type": "heading", "text": "7. Suspension Criteria", "level": 1},
+    {"type": "bullet_list", "items": [
+      "QA environment (localhost) is down or unresponsive",
+      "Critical bug blocks main user flows (posting, viewing feed, admin login)",
+      "Supabase database connection fails",
+      "Build deployment fails or introduces regressions in core functionality"
+    ]},
+    {"type": "page_break"},
+
+    {"type": "heading", "text": "8. Test Environment", "level": 1},
+    {"type": "table", "header": ["Item", "Details"], "rows": [
+      ["Application URL", "http://localhost:5173 (frontend), http://localhost:3001 (API)"],
+      ["Backend", "Express.js v5.2 on Node.js, Supabase (PostgreSQL)"],
+      ["Frontend", "React 19 + Vite 8, Tailwind CSS 3, MapLibre GL 6"],
+      ["OS", "Windows 11"],
+      ["Browsers", "Brave (primary), Chrome 120+, Firefox 121+, Edge 120+"],
+      ["Test Data", "Supabase seeded with demo postcards, settings configured"],
+      ["Automation", "Playwright v1.61 with JavaScript"],
+      ["Admin Access", "Password auto-generated in .env (16-char random string)"]
+    ], "style": "Light Grid Accent 1", "header_bold": true},
+    {"type": "page_break"},
+
+    {"type": "heading", "text": "9. Test Deliverables", "level": 1},
+    {"type": "numbered_list", "items": [
+      "This Test Plan document",
+      "Test cases with execution results (Excel files in qa/manual/test-cases/)",
+      "Bug reports (qa/manual/bugReport/)",
+      "Test data documentation (qa/manual/testdata/)",
+      "Smoke and regression checklists (qa/manual/checklists/)",
+      "Playwright automation reports (qa/automation/playwright-report/)",
+      "Test summary report"
+    ]},
+    {"type": "page_break"},
+
+    {"type": "heading", "text": "10. Roles and Responsibilities", "level": 1},
+    {"type": "table", "header": ["Name", "Role", "Responsibility"], "rows": [
+      ["Errol Jay E DePaz", "QA Lead", "Test plan creation, test case design, test execution, bug reporting, test summary report"],
+      ["Errol Jay E DePaz", "QA Engineer", "Test case execution, exploratory testing, automation script maintenance"],
+      ["Errol Jay E DePaz", "Developer", "Bug fixes, feature implementation, code reviews, deployment"],
+      ["Errol Jay E DePaz", "Project Manager", "Release approval, scope management, stakeholder communication"]
+    ], "style": "Light Grid Accent 1", "header_bold": true},
+    {"type": "page_break"},
+
+    {"type": "heading", "text": "11. Schedule", "level": 1},
+    {"type": "table", "header": ["Activity", "Dates", "Duration"], "rows": [
+      ["Test plan creation", "Sep 4, 2026", "1 day"],
+      ["Test case design", "Sep 5 – Sep 8, 2026", "4 days"],
+      ["Smoke testing", "Sep 9, 2026", "1 day"],
+      ["Functional testing (Landing, Dashboard, Posts)", "Sep 9 – Sep 12, 2026", "4 days"],
+      ["Functional testing (Postcards, Map, Admin)", "Sep 15 – Sep 18, 2026", "4 days"],
+      ["Security & negative testing", "Sep 19 – Sep 20, 2026", "2 days"],
+      ["Regression testing", "Sep 22 – Sep 24, 2026", "3 days"],
+      ["Cross-browser testing", "Sep 25, 2026", "1 day"],
+      ["Test summary report", "Sep 26, 2026", "1 day"]
+    ], "style": "Light Grid Accent 1", "header_bold": true},
+    {"type": "page_break"},
+
+    {"type": "heading", "text": "12. Risks and Mitigation", "level": 1},
+    {"type": "table", "header": ["Risk", "Impact", "Mitigation"], "rows": [
+      ["Supabase downtime or connection issues", "High", "Monitor Supabase status; have local fallback data for testing"],
+      ["Delayed bug fixes (single developer)", "Medium", "Prioritize Critical/High bugs; defer Low/Medium to next sprint"],
+      ["Environment instability (localhost)", "Medium", "Keep .env backup; document Supabase restore procedure"],
+      ["Tight deadline", "Medium", "Reduce scope to critical user flows; defer edge cases"],
+      ["Browser compatibility issues", "Low", "Focus on Brave/Chrome first; test others in regression phase"],
+      ["Rate limiting interfering with test execution", "Low", "Adjust rate limits in test environment; use unique device IDs"]
+    ], "style": "Light Grid Accent 1", "header_bold": true},
+    {"type": "page_break"},
+
+    {"type": "heading", "text": "13. Approvals", "level": 1},
+    {"type": "table", "header": ["Name", "Role", "Signature", "Date"], "rows": [
+      ["Errol Jay E DePaz", "QA Lead", "", ""],
+      ["Errol Jay E DePaz", "Developer", "", ""],
+      ["Errol Jay E DePaz", "Project Manager", "", ""]
+    ], "style": "Light Grid Accent 1", "header_bold": true},
+
+    {"type": "page_break"},
+
+    {"type": "heading", "text": "Appendix A: API Endpoints Reference", "level": 1},
+    {"type": "table", "header": ["Method", "Endpoint", "Description", "Auth"], "rows": [
+      ["GET", "/api/health", "Health check", "Public"],
+      ["GET", "/api/posts", "Get all active posts with comments", "Public"],
+      ["POST", "/api/posts", "Create a new post", "Public (rate limited)"],
+      ["DELETE", "/api/posts/:id", "Delete a post", "Public (owner only)"],
+      ["POST", "/api/posts/:id/like", "Like a post", "Public"],
+      ["POST", "/api/posts/:id/comments", "Add a comment", "Public"],
+      ["POST", "/api/posts/:id/report", "Report a post", "Public"],
+      ["GET", "/api/postcards", "Get all postcards", "Public"],
+      ["POST", "/api/postcards", "Share a postcard", "Public (rate limited)"],
+      ["GET", "/api/map/notes", "Get all active map notes", "Public"],
+      ["POST", "/api/map/notes", "Place a map note", "Public (rate limited)"],
+      ["GET", "/api/settings", "Get app settings", "Public"],
+      ["PUT", "/api/settings/:key", "Update a setting", "Admin"],
+      ["POST", "/api/admin/login", "Admin login", "Public (rate limited)"],
+      ["POST", "/api/admin/logout", "Admin logout + password reset", "Admin"],
+      ["GET", "/api/bug-reports", "Get all bug reports", "Public"],
+      ["POST", "/api/bug-reports", "Submit a bug report", "Public"],
+      ["GET", "/api/reports", "Get reported post IDs", "Public"],
+      ["POST", "/api/admin/hard-reset", "Wipe all data (DEV ONLY)", "Admin"]
+    ], "style": "Light Grid Accent 1", "header_bold": true},
+
+    {"type": "page_break"},
+
+    {"type": "heading", "text": "Appendix B: Pages and Routes", "level": 1},
+    {"type": "table", "header": ["Route", "Page Component", "Description"], "rows": [
+      ["/", "LandingPage", "Entry point with branding and Continue button"],
+      ["/home", "Dashboard", "Main feed with mood filters, search, sidebars"],
+      ["/postcard", "PostcardPage", "Postcard creator with live preview"],
+      ["/postcard-wall", "PostcardWallPage", "Community postcard wall with search"],
+      ["/map", "MapPage", "Interactive Philippines map with community notes"],
+      ["/admin", "Admin", "Password-protected admin control panel"]
+    ], "style": "Light Grid Accent 1", "header_bold": true},
+
+    {"type": "heading", "text": "Appendix C: Mood Configuration", "level": 1},
+    {"type": "table", "header": ["Mood", "Emoji", "Color (Light)", "Color (Dark)"], "rows": [
+      ["Happy", "😊", "Yellow (bg-yellow-100)", "Yellow (text-yellow-700)"],
+      ["Sad", "😢", "Blue (bg-blue-100)", "Blue (text-blue-700)"],
+      ["Angry", "😠", "Red (bg-red-100)", "Red (text-red-700)"],
+      ["Hopeful", "🤞", "Green (bg-green-100)", "Green (text-green-700)"],
+      ["Anxious", "😰", "Purple (bg-purple-100)", "Purple (text-purple-700)"]
+    ], "style": "Light Grid Accent 1", "header_bold": true}
+  ]
+}
