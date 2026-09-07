@@ -87,14 +87,17 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests.
-     Backend :3001 must be up first (frontend proxies /api to it). */
+     Backend :3001 must be up first (frontend proxies /api to it).
+     E2E_DISABLE_RATE_LIMIT=1 lifts the per-IP caps on this throwaway server
+     (CI shares one egress IP, so the full suite would 429 otherwise).
+     Production (`npm start`) never sets it — limits stay on there. */
   webServer: [
     {
       command: 'node backend/server/index.js',
       url: 'http://localhost:3001/api/health',
       reuseExistingServer: !process.env.CI,
       cwd: '../..',
-      env: { PORT: '3001' },
+      env: { PORT: '3001', E2E_DISABLE_RATE_LIMIT: '1' },
     },
     {
       command: 'npm run dev -- --port 5173 --strictPort',

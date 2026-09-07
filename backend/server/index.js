@@ -82,6 +82,12 @@ app.use(cors());
 app.use(express.json({ limit: '2mb' }));
 
 // ── ⏱️ RATE LIMITING (per IP, on top of per-device limits in routes) ────────
+// E2E_DISABLE_RATE_LIMIT=1 bypasses the IP limiters entirely. It is set ONLY
+// for the throwaway server Playwright boots in CI/local e2e runs (see
+// qa/automation/playwright.config.js webServer env). Production (`npm start`)
+// never sets it, so real deployments stay protected. Per-device limits inside
+// the routes (5 posts/device, 1 name lock, …) still apply — tests rely on them.
+const BYPASS_RATE_LIMIT = process.env.E2E_DISABLE_RATE_LIMIT === '1';
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 300,
@@ -106,10 +112,14 @@ const loginLimiter = rateLimit({
   message: { error: 'Too many login attempts. Try again later.' },
 });
 
-app.use('/api', globalLimiter);
-app.use(['/api/posts', '/api/postcards', '/api/bug-reports', '/api/reports', '/api/identity', '/api/map'],
-  (req, res, next) => (req.method === 'GET' ? next() : writeLimiter(req, res, next)));
-app.use('/api/admin/login', loginLimiter);
+if (BYPASS_RATE_LIMIT) {
+  console.log('[rate-limit] DISABLED via E2E_DISABLE_RATE_LIMIT=1 (test server only)');
+} else {
+  app.use('/api', globalLimiter);
+  app.use(['/api/posts', '/api/postcards', '/api/bug-reports', '/api/reports', '/api/identity', '/api/map'],
+    (req, res, next) => (req.method === 'GET' ? next() : writeLimiter(req, res, next)));
+  app.use('/api/admin/login', loginLimiter);
+}
 
 // ── API ROUTES ──
 app.use('/api/posts', postsRouter);

@@ -20,6 +20,11 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CI: true
+      # Test server only: lifts per-IP rate caps (CI shares one egress IP, so
+      # the full suite would 429 otherwise). Also set on the Playwright
+      # webServer in qa/automation/playwright.config.js. Production never sets
+      # this — limits stay on there.
+      E2E_DISABLE_RATE_LIMIT: '1'
       VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
       VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -60,8 +65,8 @@ jobs:
             ${{ runner.os }}-playwright-
 
       - name: Install Playwright browsers (chromium + system deps)
-        # CI runs the chromium + api projects only (fast, avoids the
-        # 30-writes/15min server rate limit). To run every browser locally:
+        # CI runs the chromium + api projects only (fast). To run every
+        # browser locally:
         #   npm run test:e2e
         # To run everything in CI, add firefox/webkit here and drop the
         # --project flags in the test step.
