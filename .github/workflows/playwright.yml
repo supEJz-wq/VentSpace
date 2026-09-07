@@ -1,38 +1,111 @@
 name: Playwright Tests
+
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+# Cancel superseded runs on the same ref (pushes while CI is queued).
+concurrency:
+  group: playwright-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    env:
+      CI: true
+      VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: lts/*
-    - name: Install dependencies
-      run: npm ci
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
-    - name: Lint automation code
-      run: npx eslint qa/automation
-    - name: Run Playwright tests
-      # Secrets required (repo Settings → Secrets → Actions): VITE_SUPABASE_URL,
-      # VITE_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, ADMIN_PASSWORD.
-      # Execution discipline (server caps ~30 writes/15min/IP): run one spec file
-      # per invocation; the full `test:e2e` below is kept for small suites only.
-      env:
-        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-        VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-        SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-      run: npm run test:e2e
-    - uses: actions/upload-artifact@v4
-      if: ${{ !cancelled() }}
-      with:
-        name: playwright-report
-        path: qa/automation/playwright-report/
-        retention-days: 30
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Check required secrets
+        run: |
+          missing=""
+          [ -z "$VITE_SUPABASE_URL" ] && missing="$missing VITE_SUPABASE_URL"
+          [ -z "$VITE_SUPABASE_ANON_KEY" ] && missing="$missing VITE_SUPABASE_ANON_KEY"
+          [ -z "$SUPABASE_SERVICE_ROLE_KEY" ] && missing="$missing SUPABASE_SERVICE_ROLE_KEY"
+          [ -z "$ADMIN_PASSWORD" ] && missing="$missing ADMIN_PASSWORD"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing required GitHub Secrets:$missing"
+            echo "Add them under: repo Settings -> Secrets and variables -> Actions."
+            exit 1
+          fi
+          echo "All required secrets are present."
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
+      - name: Install Playwright browsers (chromium + system deps)
+        # CI runs the chromium + api projects only (fast, avoids the
+        # 30-writes/15min server rate limit). To run every browser locally:
+        #   npm run test:e2e
+        # To run everything in CI, add firefox/webkit here and drop the
+        # --project flags in the test step.
+        run: npx playwright install --with-deps chromium
+
+      - name: Write .env from secrets
+        # Backend (dotenv) and Vite (envDir: '..') both read the repo-root
+        # .env file. Env vars alone work, but a real file keeps them in sync
+        # (e.g. admin logout rotation rewrites ADMIN_PASSWORD on disk and
+        # tests resync it from there).
+        run: |
+          {
+            echo "VITE_SUPABASE_URL=$VITE_SUPABASE_URL"
+            echo "VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$SUPABASE_SERVICE_ROLE_KEY"
+            echo "ADMIN_PASSWORD=$ADMIN_PASSWORD"
+          } > .env
+          echo ".env written (values masked in logs)."
+
+      - name: Lint automation code
+        run: npx eslint qa/automation
+
+      - name: Build frontend
+        # Verifies `vite build` passes and produces frontend/dist, which the
+        # backend serves in production.
+        run: npm run build
+
+      - name: Run Playwright tests (chromium + api)
+        run: npx playwright test --config qa/automation/playwright.config.js --project=chromium --project=api
+
+      - name: Upload HTML report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: qa/automation/playwright-report/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Upload test results (traces, screenshots, videos)
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-test-results
+          path: qa/automation/test-results/
+          if-no-files-found: ignore
+          retention-days: 14
