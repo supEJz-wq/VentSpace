@@ -3,8 +3,8 @@ import { Shield, LogOut, BookOpen, MessageSquare, Image, BarChart3, FileText, Ma
 import useIsDark from '../lib/useIsDark';
 import Logo from '../Components/Logo';
 import ThemeToggle from '../Components/ThemeToggle';
-import AdminStats from '../Components/admin/AdminStats';
-import ModerationTable from '../Components/admin/ModerationTable';
+import AdminStats from '../Components/Admin/AdminStats';
+import ModerationTable from '../Components/Admin/ModerationTable';
 import ControlPanel from '../Components/Admin/ControlPanel';
 import AdminGuidelines from '../Components/Admin/AdminGuidelines';
 import FeedbackReportsTable from '../Components/Admin/FeedbackReportsTable';
