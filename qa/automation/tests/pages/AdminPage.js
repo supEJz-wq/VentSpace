@@ -81,13 +81,27 @@ export class AdminPage extends BasePage {
   }
 
   // Sets auto-delete hours via the slider (1-72 UI range; API allows to 168).
+  // Waits for the settings PUT to land BEFORE returning — callers reload the
+  // page right after, and navigation would abort an in-flight PUT (ADM-8 flake).
   async setHours(value) {
+    const saved = this.page.waitForResponse(
+      (r) => r.url().includes('/api/settings/auto_delete_hours') && r.request().method() === 'PUT',
+      { timeout: 15000 },
+    );
     await this.hoursSlider.fill(String(value));
+    await saved;
   }
 
   // Adds a blacklist word chip (Plus submits the inline form).
+  // Same PUT-sync reasoning as setHours: the chip renders optimistically, so
+  // without this wait a reload can drop the word server-side.
   async addWord(word) {
+    const saved = this.page.waitForResponse(
+      (r) => r.url().includes('/api/settings/blacklisted_words') && r.request().method() === 'PUT',
+      { timeout: 15000 },
+    );
     await this.wordInput.fill(word);
     await this.wordInput.press('Enter');
+    await saved;
   }
 }

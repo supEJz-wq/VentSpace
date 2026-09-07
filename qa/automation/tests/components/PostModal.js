@@ -15,7 +15,9 @@ export class PostModal {
     this.rateLimitError = this.root.getByText(/rate limit reached/i);
     this.lockedBadge = this.root.getByText('Locked');
     this.charCounter = this.root.getByText(/\/300/);
-    this.settledState = this.root.getByText(/name locks for 5 hours/i).or(this.root.getByText('Locked'));
+    // Settled hint shows the LIVE autoDeleteHours value ("Name locks for N hours"),
+    // which admin tests change (ADM-8) — never hardcode a number here.
+    this.settledState = this.root.getByText(/name locks for \d+ hours/i).or(this.root.getByText('Locked'));
   }
 
   // USE: call after opening the modal, before filling. Waits out the late settings round-trip

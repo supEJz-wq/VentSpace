@@ -109,31 +109,37 @@ test.describe('Admin moderation tables @regression', () => {
 
 test.describe('Admin settings @regression', () => {
   // ADM-8: settings UI saves through (updateSetting sends the admin token).
-  // Covers: set hours 24 → chip shown → reload → both persisted → restore originals.
+  // Covers: set hours → chip shown → reload → both persisted → restore originals.
   test('ADM-8 Settings changes persist', async ({ page, request }) => {
     const before = await getSettings(request);
+    // Pick a value that DIFFERS from current: a prior failed run leaves 24 in
+    // the DB, and filling the slider with its current value fires no PUT.
+    const targetHours = before.auto_delete_hours === 24 ? 48 : 24;
     const marker = `qaword${Date.now().toString(36).replace(/[^a-z0-9]/g, '')}`;
-    const admin = new AdminPage(page);
-    await admin.open();
-    await admin.loginAsAdmin();
-    await admin.openTab('Settings');
-    await admin.setHours(24);
-    await expect(page.getByText('24', { exact: true }).first()).toBeVisible();
-    await admin.addWord(marker);
-    await expect(page.getByText(marker)).toBeVisible();
-    await page.reload();
-    await expect(admin.commandTitle).toBeVisible({ timeout: 15000 });
-    await admin.openTab('Settings');
-    await expect(page.getByText('24', { exact: true }).first()).toBeVisible({ timeout: 15000 });
-    await expect(page.getByText(marker)).toBeVisible({ timeout: 15000 });
-    // Restore pre-test state via API (keeps later runs deterministic).
     const { loginAdminToken, adminHeaders } = await import('../helpers/auth.js');
     const token = await loginAdminToken(request);
     const auth = adminHeaders(token);
-    await request.put('/api/settings/auto_delete_hours', { headers: auth, data: { value: before.auto_delete_hours } });
-    const current = await getSettings(request);
-    const cleaned = (current.blacklisted_words || []).filter((w) => w !== marker);
-    await request.put('/api/settings/blacklisted_words', { headers: auth, data: { value: cleaned } });
+    try {
+      const admin = new AdminPage(page);
+      await admin.open();
+      await admin.loginAsAdmin();
+      await admin.openTab('Settings');
+      await admin.setHours(targetHours);
+      await expect(page.getByText(String(targetHours), { exact: true }).first()).toBeVisible();
+      await admin.addWord(marker);
+      await expect(page.getByText(marker)).toBeVisible();
+      await page.reload();
+      await expect(admin.commandTitle).toBeVisible({ timeout: 15000 });
+      await admin.openTab('Settings');
+      await expect(page.getByText(String(targetHours), { exact: true }).first()).toBeVisible({ timeout: 15000 });
+      await expect(page.getByText(marker)).toBeVisible({ timeout: 15000 });
+    } finally {
+      // Restore pre-test state via API even on failure (keeps later runs deterministic).
+      await request.put('/api/settings/auto_delete_hours', { headers: auth, data: { value: before.auto_delete_hours } });
+      const current = await getSettings(request);
+      const cleaned = (current.blacklisted_words || []).filter((w) => w !== marker);
+      await request.put('/api/settings/blacklisted_words', { headers: auth, data: { value: cleaned } });
+    }
   });
 });
 
