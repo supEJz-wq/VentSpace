@@ -5,7 +5,12 @@
 
 import { getDeviceId, getStoredUsername } from './identity';
 
-const API = '/api';
+const API = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
+// Production override: when the static frontend is hosted apart from the API
+// (e.g. Vercel frontend + Render backend), set VITE_API_URL to the backend
+// origin INCLUDING /api, e.g. https://ventspace-o0dt.onrender.com/api — calls
+// then go direct instead of relying on a hosting rewrite. Local dev leaves it
+// unset and keeps using the Vite proxy.
 const ADMIN_TOKEN_KEY = 'ventspace_admin_token';
 
 /** Fire a request; resolves with parsed JSON or null on failure (graceful). */
