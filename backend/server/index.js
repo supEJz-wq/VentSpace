@@ -35,6 +35,18 @@ function upsertEnvPassword(envContent, key, password) {
 }
 
 function ensureAdminPassword() {
+  // On hosted production (Render sets RENDER=true, NODE_ENV=production),
+  // NEVER boot with a generated password: it would be unknown to the owner,
+  // unwritable to persistent env, and even printed into deploy logs.
+  const isProd = process.env.NODE_ENV === 'production' || !!process.env.RENDER;
+  if (isProd && !process.env.ADMIN_PASSWORD) {
+    console.error('');
+    console.error('[admin] FATAL: ADMIN_PASSWORD is not set.');
+    console.error('[admin] Set it in your host dashboard (Render → Environment) and redeploy.');
+    console.error('[admin] Refusing to boot with a random password nobody knows.');
+    process.exit(1);
+  }
+
   const envPath = path.join(__dirname, '..', '..', '.env');
   let envContent = '';
   try { envContent = fs.readFileSync(envPath, 'utf-8'); } catch { }
@@ -48,7 +60,10 @@ function ensureAdminPassword() {
 
     // Copy to clipboard (best-effort, server machine only — see /admin/copy-password
     // which returns the password so the BROWSER can copy it client-side).
-    try { execSync('clip', { input: password }); } catch { }
+    // Windows-only: elsewhere `clip` doesn't exist (log noise on Linux hosts).
+    if (process.platform === 'win32') {
+      try { execSync('clip', { input: password }); } catch { }
+    }
 
     console.log('');
     console.log('┌─────────────────────────────────────────────┐');
@@ -62,12 +77,18 @@ function ensureAdminPassword() {
   }
 
   // 2nd option: static backup password for when clipboard copy fails.
+  // In production it must come from env too — a generated one would be
+  // unknown to the owner (and .env is ephemeral on hosts like Render).
   if (!process.env.ADMIN_BACKUP_PASSWORD) {
-    const backup = randomAdminPassword();
-    envContent = upsertEnvPassword(envContent, 'ADMIN_BACKUP_PASSWORD', backup);
-    process.env.ADMIN_BACKUP_PASSWORD = backup;
-    dirty = true;
-    console.log('[admin] ADMIN_BACKUP_PASSWORD generated — use it from .env when clipboard fails.');
+    if (isProd) {
+      console.log('[admin] WARNING: ADMIN_BACKUP_PASSWORD not set — backup login disabled. Set it in the host dashboard to enable it.');
+    } else {
+      const backup = randomAdminPassword();
+      envContent = upsertEnvPassword(envContent, 'ADMIN_BACKUP_PASSWORD', backup);
+      process.env.ADMIN_BACKUP_PASSWORD = backup;
+      dirty = true;
+      console.log('[admin] ADMIN_BACKUP_PASSWORD generated — use it from .env when clipboard fails.');
+    }
   }
 
   if (dirty) fs.writeFileSync(envPath, envContent);
@@ -150,9 +171,20 @@ setInterval(runPurge, 15 * 60 * 1000);         // then every 15 min
 
 // ── SERVE BUILT FRONTEND (production) ──
 const distDir = path.join(__dirname, '..', '..', 'frontend', 'dist');
+const distReady = fs.existsSync(path.join(distDir, 'index.html'));
+if (!distReady) {
+  console.error('[static] WARNING: frontend/dist/index.html is missing — the frontend was not built.');
+  console.error('[static] API routes still work. Set the host build command to `npm ci && npm run build` and redeploy.');
+}
 app.use(express.static(distDir));
 app.use((req, res, next) => {
   if (req.path.startsWith('/api')) return next();
+  // Readable 503 instead of an ENOENT crash when dist was never built.
+  if (!distReady) {
+    return res.status(503).send(
+      'VentSpace frontend is not built on this server. Set the build command to `npm ci && npm run build` and redeploy.'
+    );
+  }
   res.sendFile(path.join(distDir, 'index.html'));
 });
 

@@ -48,7 +48,10 @@ router.post('/admin/logout', requireAdmin, async (req, res) => {
 
     // Best-effort server clipboard (only helps when server == your machine).
     // The client ALSO copies via navigator.clipboard from the `password` field below.
-    try { execSync('clip', { input: password }); } catch { }
+    // Windows-only: elsewhere `clip` doesn't exist (log noise on Linux hosts).
+    if (process.platform === 'win32') {
+      try { execSync('clip', { input: password }); } catch { }
+    }
 
     console.log('[admin] Primary password reset — backup password unchanged (still in .env)');
     res.json({ ok: true, password });
