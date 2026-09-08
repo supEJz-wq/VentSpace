@@ -136,7 +136,7 @@ export async function purgeExpiredPosts() {
   await req('/posts/purge', { method: 'POST', headers: adminHeaders() });
 }
 
-/** Delete a post by id (Soft Delete) — 🔐 ownership verified server-side */
+/** Delete a post by id (Soft Delete + clears its comments & reports) — 🔐 ownership verified server-side */
 export async function deletePost(id) {
   const params = new URLSearchParams({
     deviceId: getDeviceId(),

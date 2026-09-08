@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Header from '../Components/Header';
 import LeftSidebar from '../Components/LeftSidebar';
+import MoodRail from '../Components/MoodRail';
+import ExploreSheet from '../Components/ExploreSheet';
 import Feed from '../Components/Feed';
 import RightSidebar from '../Components/RightSidebar';
 import PostModal from '../Components/PostModal';
@@ -26,6 +28,7 @@ function Dashboard() {
   const [searchQuery, setSearchQuery]       = useState('');
   const [isModalOpen, setIsModalOpen]       = useState(false);
   const [isBugModalOpen, setIsBugModalOpen] = useState(false);
+  const [isExploreOpen, setIsExploreOpen] = useState(false);
   const [bugModalMode, setBugModalMode]     = useState('bug'); // Added bugModalMode
   const [activeTag, setActiveTag]           = useState(null);
 
@@ -397,6 +400,20 @@ function Dashboard() {
         initialMode={bugModalMode}
       />
 
+      {/* Mobile Explore sheet — mounted only while open (see ExploreSheet) */}
+      {isExploreOpen && (
+        <ExploreSheet
+          onClose={() => setIsExploreOpen(false)}
+          activeTag={activeTag}
+          onTagClick={handleTagClick}
+          activeContributor={activeContributor}
+          onContributorClick={handleContributorClick}
+          recentActivity={recentActivity}
+          recentTopics={recentTopics}
+          moodData={moodData}
+        />
+      )}
+
       <div className="relative z-10">
         {/* FLOATING FEEDBACK BUTTONS */}
         <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col gap-2.5 sm:gap-3 items-end">
@@ -435,6 +452,19 @@ function Dashboard() {
             </div>
           </div>
         )}
+
+        {/* MOBILE DISCOVER — sidebars are lg+ only, so phones/tablets get the
+            mood rail + Explore sheet trigger instead (above the feed). */}
+        <div className="lg:hidden max-w-[1400px] mx-auto px-3 sm:px-6 pt-4 space-y-2.5">
+          <MoodRail activeMood={activeMood} onSelect={handleMoodChange} moodData={moodData} />
+          <button
+            onClick={() => setIsExploreOpen(true)}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-white/70 border border-purple-100/70 text-xs font-bold text-purple-600 hover:bg-white active:scale-[0.99] transition-all shadow-glass"
+          >
+            <span aria-hidden="true">✨</span>
+            Explore topics, activity &amp; vibe
+          </button>
+        </div>
 
         {/* MAIN 3-COLUMN LAYOUT */}
         <div className="max-w-[1400px] mx-auto px-3 sm:px-6 py-6 sm:py-8 grid grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)_300px] gap-6 lg:gap-8 items-start">

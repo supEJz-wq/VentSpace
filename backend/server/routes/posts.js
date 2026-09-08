@@ -198,6 +198,17 @@ router.delete('/:id', async (req, res) => {
 
   const { error } = await supabase.from('posts').update({ is_deleted: true }).eq('id', id);
   if (error) return res.status(500).json({ error: error.message });
+
+  // 🧹 Immediate cleanup: deleting the post also deletes its comments (replies
+  // go via the parent_id cascade) and its moderation-queue entry — otherwise
+  // they'd sit orphaned until the expiry purge hard-deletes the row.
+  // (Children AFTER the post update: a failed post update must not orphan comments.)
+  const [{ error: commentsError }, { error: reportsError }] = await Promise.all([
+    supabase.from('comments').delete().eq('post_id', id),
+    supabase.from('reported_posts').delete().eq('post_id', id),
+  ]);
+  if (commentsError) return res.status(500).json({ error: commentsError.message });
+  if (reportsError) return res.status(500).json({ error: reportsError.message });
   res.json({ ok: true });
 });
 

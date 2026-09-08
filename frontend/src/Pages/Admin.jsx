@@ -261,10 +261,32 @@ const Admin = () => {
     if (!window.confirm("NUCLEAR RESET: This will delete ALL posts and UNLOCK ALL names. Are you 100% sure?")) return;
     const pass = window.prompt("Type 'RESET' to confirm:");
     if (pass !== 'RESET') return;
-    await hardResetDatabase();
+    // NOTE: req() resolves null (never throws) when the server rejects the
+    // call — e.g. admin token older than 1h or issued before a server restart
+    // (tokens live in server memory). A null here means NOTHING was wiped, so
+    // fail loudly instead of fake-celebrating below.
+    const result = await hardResetDatabase();
+    if (!result?.ok) {
+      alert("Nuclear reset FAILED — the server rejected it (usually: admin session expired or server restarted since login).\n\nNothing was wiped. Log out, log back in, then try again.");
+      return;
+    }
+    // ── Local refresh: the server just wiped posts (→ 5-post limit back to 0)
+    // and device identities (→ name locks gone). Drop this browser's stale
+    // copies too, clear every admin table, then reload so all timers/counts
+    // re-render from the now-empty database.
+    try {
+      localStorage.removeItem('freespace_username_data');
+      localStorage.removeItem('freespace_username');
+      localStorage.removeItem('ventspace_my_posts');
+      localStorage.removeItem('ventspace_my_comments');
+    } catch { /* private-mode storage: reload still refreshes */ }
     setAllPosts([]);
     setReportedPostIds([]);
-    alert("The entire database has been wiped.");
+    setBugReports([]);
+    setPostcards([]);
+    setMapNotes([]);
+    alert("The entire database has been wiped. Name locks and post limits are reset — refreshing.");
+    window.location.reload();
   };
 
   const handleUnlockAllNames = async () => {

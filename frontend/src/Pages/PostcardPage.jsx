@@ -328,7 +328,7 @@ export default function PostcardPage() {
               ))}
             </div>
 
-            <div className="p-6 space-y-5">
+            <div className="p-4 sm:p-6 space-y-5">
 
               {/* ── CONTENT TAB ── */}
               {activeTab === 'content' && (
@@ -372,12 +372,12 @@ export default function PostcardPage() {
                   {/* Stickers */}
                   <div>
                     <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2.5">Add Stickers</label>
-                    <div className="grid grid-cols-5 gap-2">
+                    <div className="grid grid-cols-5 gap-1 sm:gap-2">
                       {STICKERS.map(s => (
                         <button
                           key={s}
                           onClick={() => set('stickers', [...card.stickers, { emoji: s, x: 40 + Math.random() * 20, y: 40 + Math.random() * 20 }])}
-                          className="text-2xl p-2 rounded-xl hover:bg-purple-50 hover:scale-125 hover:-rotate-6 active:scale-95 transition-all duration-200"
+                          className="text-2xl p-2.5 rounded-xl hover:bg-purple-50 hover:scale-125 hover:-rotate-6 active:scale-95 transition-all duration-200"
                           title="Add sticker (drag to position)"
                         >
                           {s}
@@ -587,16 +587,17 @@ export default function PostcardPage() {
         </div>
 
         {/* ══ RIGHT: LIVE PREVIEW ══ */}
-        <div className="flex-1 flex flex-col items-center">
+        {/* w-full: in the mobile column layout (items-start) this block would
+            otherwise shrink-to-fit and pin the card narrow to the left. */}
+        <div className="w-full flex-1 flex flex-col items-center">
           <p className="text-xs font-bold text-gray-400 uppercase tracking-[0.2em] mb-5">Live Preview</p>
 
           {/* Postcard card */}
           <div
             ref={cardRef}
-            className={`relative w-full max-w-[600px] rounded-3xl overflow-hidden transition-all duration-500 hover:scale-[1.01] ${borderClass}`}
+            className={`relative w-full max-w-[600px] min-h-[320px] sm:min-h-[400px] rounded-3xl overflow-hidden transition-all duration-500 hover:scale-[1.01] ${borderClass}`}
             style={{
               ...bgStyle,
-              minHeight: '400px',
               fontFamily: card.font,
               color: card.textColor,
             }}
@@ -608,8 +609,8 @@ export default function PostcardPage() {
             <div className="absolute bottom-4 right-4 text-2xl opacity-30 select-none">✦</div>
 
             <div
-              className="relative z-10 flex flex-col justify-between px-12 py-10"
-              style={{ minHeight: '400px', textAlign: card.align }}
+              className="relative z-10 flex flex-col justify-between px-6 py-8 sm:px-12 sm:py-10 min-h-[320px] sm:min-h-[400px]"
+              style={{ textAlign: card.align }}
             >
               {/* TO */}
               <div>
@@ -632,11 +633,11 @@ export default function PostcardPage() {
               {/* MESSAGE */}
               <div className="flex-1 flex items-center justify-center my-2">
                 {card.message ? (
-                  <p className="text-xl leading-relaxed whitespace-pre-wrap">
+                  <p className="text-lg sm:text-xl leading-relaxed whitespace-pre-wrap">
                     {card.message}
                   </p>
                 ) : (
-                  <p className="text-xl opacity-25 italic">Your message appears here…</p>
+                  <p className="text-lg sm:text-xl opacity-25 italic">Your message appears here…</p>
                 )}
               </div>
 

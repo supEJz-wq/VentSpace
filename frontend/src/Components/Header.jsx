@@ -44,40 +44,40 @@ const Header = ({ openModal, searchQuery, setSearchQuery }) => {
             </div>
           </div>
 
-          {/* Nav actions */}
+          {/* Nav actions (labels only on laptop+; icons-only on tablets/phones) */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <ThemeToggle />
             <button
               onClick={() => navigate('/postcard')}
-              className="flex items-center gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-full text-sm font-semibold border border-pink-200/80 bg-white/70 text-pink-500 hover:bg-pink-50 hover:border-pink-300 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+              className="flex items-center gap-2 px-2.5 lg:px-4 py-2 sm:py-2.5 rounded-full text-sm font-semibold border border-pink-200/80 bg-white/70 text-pink-500 hover:bg-pink-50 hover:border-pink-300 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
               title="Postcard"
             >
               <Mail size={16} />
-              <span className="hidden md:inline">Postcard</span>
+              <span className="hidden lg:inline">Postcard</span>
             </button>
             <button
               onClick={() => navigate('/postcard-wall')}
-              className="flex items-center gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-full text-sm font-semibold border border-purple-200/80 bg-white/70 text-purple-500 hover:bg-purple-50 hover:border-purple-300 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+              className="flex items-center gap-2 px-2.5 lg:px-4 py-2 sm:py-2.5 rounded-full text-sm font-semibold border border-purple-200/80 bg-white/70 text-purple-500 hover:bg-purple-50 hover:border-purple-300 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
               title="Postcard Wall"
             >
               🖼️
-              <span className="hidden md:inline">Wall</span>
+              <span className="hidden lg:inline">Wall</span>
             </button>
             <button
               onClick={() => navigate('/map')}
-              className="flex items-center gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-full text-sm font-semibold border border-fuchsia-200/80 bg-white/70 text-fuchsia-600 hover:bg-fuchsia-50 hover:border-fuchsia-300 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+              className="flex items-center gap-2 px-2.5 lg:px-4 py-2 sm:py-2.5 rounded-full text-sm font-semibold border border-fuchsia-200/80 bg-white/70 text-fuchsia-600 hover:bg-fuchsia-50 hover:border-fuchsia-300 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
               title="FreeSpace Map"
             >
               <MapPin size={16} />
-              <span className="hidden md:inline">Map</span>
+              <span className="hidden lg:inline">Map</span>
             </button>
             <button
               onClick={openModal}
-              className="relative overflow-hidden bg-gradient-to-r from-purple-500 via-fuchsia-500 to-pink-500 bg-[length:200%_auto] hover:bg-right text-white px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full flex items-center gap-2 font-semibold text-sm transition-all duration-500 shadow-glow-sm hover:shadow-glow hover:-translate-y-0.5 active:translate-y-0"
+              className="relative overflow-hidden bg-gradient-to-r from-purple-500 via-fuchsia-500 to-pink-500 bg-[length:200%_auto] hover:bg-right text-white px-3.5 lg:px-5 py-2 sm:py-2.5 rounded-full flex items-center gap-2 font-semibold text-sm transition-all duration-500 shadow-glow-sm hover:shadow-glow hover:-translate-y-0.5 active:translate-y-0"
             >
               <PenLine size={17} />
-              <span className="hidden sm:inline">Post Something</span>
-              <span className="sm:hidden">Post</span>
+              <span className="hidden lg:inline">Post Something</span>
+              <span className="lg:hidden">Post</span>
             </button>
           </div>
 
