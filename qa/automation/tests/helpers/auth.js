@@ -10,7 +10,14 @@ export async function loginAdminToken(request) {
   if (cachedToken && Date.now() < cachedExp) return cachedToken;
   const password = process.env.ADMIN_PASSWORD;
   if (!password) throw new Error('ADMIN_PASSWORD env is required for admin API helpers');
-  const res = await request.post('/api/admin/login', { data: { password } });
+  let res = await request.post('/api/admin/login', { data: { password } });
+  if (res.status() === 401) {
+    // A logout test may have rotated the password earlier in this worker —
+    // re-read it from the server-maintained .env (also drops the revoked
+    // cached token) and retry exactly once.
+    await resyncAdminPassword();
+    res = await request.post('/api/admin/login', { data: { password: process.env.ADMIN_PASSWORD } });
+  }
   if (!res.ok()) throw new Error(`admin login failed: ${res.status()}`);
   const { token } = await res.json();
   cachedToken = token;

@@ -23,13 +23,21 @@ export async function hardResetDatabase(request) {
 // Same wipe via plain fetch for beforeAll hooks (no fixtures available there).
 export async function globalReset() {
   assertLocal();
-  const password = process.env.ADMIN_PASSWORD;
-  if (!password) throw new Error('ADMIN_PASSWORD env is required for globalReset');
-  const login = await fetch(`${API}/api/admin/login`, {
+  const doLogin = (password) => fetch(`${API}/api/admin/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ password }),
   });
+  let password = process.env.ADMIN_PASSWORD;
+  if (!password) throw new Error('ADMIN_PASSWORD env is required for globalReset');
+  let login = await doLogin(password);
+  if (login.status === 401) {
+    // Same rotation hazard as loginAdminToken (ADM-2/API-ADMIN-LOGOUT rewrite
+    // .env) — re-sync from disk and retry exactly once.
+    const { resyncAdminPassword } = await import('./auth.js');
+    password = await resyncAdminPassword();
+    login = await doLogin(password);
+  }
   if (!login.ok) throw new Error(`globalReset login failed: ${login.status}`);
   const { token } = await login.json();
   const res = await fetch(`${API}/api/admin/hard-reset`, {

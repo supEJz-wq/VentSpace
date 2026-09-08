@@ -167,5 +167,10 @@ test.describe('Admin logout @regression', () => {
     await admin.logoutButton.click();
     await expect(admin.passwordInput).toBeVisible({ timeout: 15000 });
     await expect(admin.commandTitle).toBeHidden();
+    // Logout ROTATES the primary password server-side (rewrites .env). Later
+    // spec files share this worker's process.env, so re-sync now — otherwise
+    // every subsequent admin login/globalReset 401s (mirrors API-ADMIN-LOGOUT).
+    const { resyncAdminPassword } = await import('../helpers/auth.js');
+    await resyncAdminPassword();
   });
 });
