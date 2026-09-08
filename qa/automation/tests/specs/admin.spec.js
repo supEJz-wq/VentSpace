@@ -122,8 +122,20 @@ test.describe('Admin settings @regression', () => {
     try {
       const admin = new AdminPage(page);
       await admin.open();
+      // Sync with Admin.jsx's initial settings load: it fires after login and
+      // unconditionally overwrites hours/words state when it lands. Editing
+      // before it completes gets clobbered (late setSettings wins) — the
+      // exact interleaving varies CI vs local, hence the flake.
+      const settingsLoaded = page.waitForResponse(
+        (r) => r.url().includes('/api/settings') && r.request().method() === 'GET',
+        { timeout: 15000 },
+      );
       await admin.loginAsAdmin();
+      await settingsLoaded;
       await admin.openTab('Settings');
+      // Sanity: UI now reflects server state, not the useState defaults.
+      await expect(page.getByText(String(before.auto_delete_hours), { exact: true }).first())
+        .toBeVisible({ timeout: 15000 });
       await admin.setHours(targetHours);
       await expect(page.getByText(String(targetHours), { exact: true }).first()).toBeVisible();
       await admin.addWord(marker);
