@@ -34,6 +34,9 @@ export function getAdminToken() {
   return sessionStorage.getItem(ADMIN_TOKEN_KEY);
 }
 
+/** Login result: { ok } — plus unreachable:true when the API itself didn't
+ *  answer (404 proxy miss, 5xx, network). Callers must NOT report those as
+ *  "incorrect password" (that misdiagnosis costs real debugging time). */
 export async function loginAdmin(password) {
   try {
     // Clipboard paste often drags in CRLF/spaces/quotes — clean before sending.
@@ -46,12 +49,13 @@ export async function loginAdmin(password) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password: clean }),
     });
-    if (!res.ok) return false;
+    if (res.status === 404 || res.status >= 500) return { ok: false, unreachable: true };
+    if (!res.ok) return { ok: false };
     const data = await res.json();
     sessionStorage.setItem(ADMIN_TOKEN_KEY, data.token);
-    return true;
+    return { ok: true };
   } catch {
-    return false;
+    return { ok: false, unreachable: true };
   }
 }
 

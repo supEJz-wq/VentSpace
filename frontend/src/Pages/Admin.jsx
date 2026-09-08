@@ -169,12 +169,15 @@ const Admin = () => {
     if ((clean.startsWith('"') && clean.endsWith('"')) || (clean.startsWith("'") && clean.endsWith("'"))) {
       clean = clean.slice(1, -1).trim();
     }
-    const ok = await loginAdmin(clean);
+    const result = await loginAdmin(clean);
+    const ok = result && result.ok === true;
     if (ok) {
       setIsAuthenticated(true);
       sessionStorage.setItem('freespace_admin_auth', 'true');
       setError('');
       setPasswordInput('');
+    } else if (result && result.unreachable) {
+      setError('Cannot reach the server (API not found). The backend may be down or the /api proxy misconfigured — check the deployment, not the password.');
     } else {
       setError('Incorrect password. Access denied. Tip: open .env and try ADMIN_BACKUP_PASSWORD — paste without extra spaces.');
     }
