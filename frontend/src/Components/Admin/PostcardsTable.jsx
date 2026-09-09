@@ -165,7 +165,12 @@ const PostcardsTable = ({
                   </td>
                   <td className="px-4 py-3">
                     {card.stickers?.length > 0 ? (
-                      <div className="flex gap-1 text-base">{card.stickers.slice(0, 3).map(s => <span key={s}>{s}</span>)}</div>
+                      <div className="flex gap-1 text-base">{card.stickers.slice(0, 3).map((s, i) => {
+                        // Stickers are { emoji } objects since the jsonb migration
+                        // (legacy rows could still be plain strings) — never render raw.
+                        const emoji = typeof s === 'string' ? s : s?.emoji;
+                        return <span key={`${emoji ?? '?'}${i}`}>{emoji ?? ''}</span>;
+                      })}</div>
                     ) : (
                       <span className="opacity-30">—</span>
                     )}
