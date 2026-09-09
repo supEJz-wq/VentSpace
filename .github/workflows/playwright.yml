@@ -70,7 +70,12 @@ jobs:
         #   npm run test:e2e
         # To run everything in CI, add firefox/webkit here and drop the
         # --project flags in the test step.
-        run: npx playwright install --with-deps chromium
+        run: |
+          # Drop the stale preinstalled Chrome repo: its hash mismatches
+          # routinely break apt during --with-deps on GH runners. Retry once
+          # for transient mirror flakes.
+          sudo rm -f /etc/apt/sources.list.d/google-chrome.list
+          npx playwright install --with-deps chromium || npx playwright install --with-deps chromium
 
       - name: Write .env from secrets
         # Backend (dotenv) and Vite (envDir: '..') both read the repo-root
