@@ -71,11 +71,24 @@ jobs:
         # To run everything in CI, add firefox/webkit here and drop the
         # --project flags in the test step.
         run: |
-          # Drop the stale preinstalled Chrome repo: its hash mismatches
-          # routinely break apt during --with-deps on GH runners. Retry once
-          # for transient mirror flakes.
-          sudo rm -f /etc/apt/sources.list.d/google-chrome.list
-          npx playwright install --with-deps chromium || npx playwright install --with-deps chromium
+          # Browsers persist via the ms-playwright cache step above — if a
+          # usable chromium is already there, skip reinstalling entirely
+          # (this also dodges the flaky apt/Chrome-repo dance below).
+          if compgen -G "$HOME/.cache/ms-playwright/chromium-*/chrome-linux/chrome" > /dev/null \
+            || compgen -G "$HOME/.cache/ms-playwright/chromium_headless_shell-*/chrome-linux/headless_shell" > /dev/null; then
+            echo "Chromium already cached — skipping install."
+            exit 0
+          fi
+          # Fresh install: purge every Google apt source first (their hash
+          # mismatches routinely break apt on GH runners — both the .list
+          # files and any inline entry), then install. Fall back to a
+          # deps-free browser install: runner images already carry Chrome's
+          # system libraries, as past green runs on these images prove.
+          grep -rl 'dl.google.com' /etc/apt/sources.list.d/ 2>/dev/null | sudo xargs -r rm -f
+          sudo sed -i '/dl.google.com/d' /etc/apt/sources.list 2>/dev/null || true
+          npx playwright install --with-deps chromium \
+            || npx playwright install --with-deps chromium \
+            || npx playwright install chromium
 
       - name: Write .env from secrets
         # Backend (dotenv) and Vite (envDir: '..') both read the repo-root
