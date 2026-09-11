@@ -161,6 +161,9 @@ async function runPurge() {
 
     const { error: mapErr } = await supabase.rpc('purge_expired_map_notes');
     if (mapErr) console.error('[purge] map notes failed:', mapErr.message);
+
+    const { error: identErr } = await supabase.rpc('purge_expired_identities');
+    if (identErr) console.error('[purge] identities failed:', identErr.message);
     else console.log(`[purge] ok @ ${new Date().toISOString()}`);
   } catch (err) {
     console.error('[purge] crashed:', err.message);

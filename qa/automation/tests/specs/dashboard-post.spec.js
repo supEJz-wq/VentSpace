@@ -143,12 +143,14 @@ test.describe('Dashboard posting abuse guards @regression', () => {
   });
 
   // DASH-P8: owners can delete their own post from the card.
-  // Covers: create → header trash (first button in own card) → card removed.
+  // Covers: create → header trash (first button in own card) → confirm →
+  // deleted popup → card removed.
   test('DASH-P8 Owner can delete own post', async ({ page }) => {
     const name = uniqueName('qa-del');
     const text = uniqueText('delete me');
     const dashboard = await createViaUi(page, { name, text, mood: 'Happy' });
     const card = dashboard.feed.postCard({ name, text, mood: 'Happy' });
+    await page.on('dialog', (d) => d.accept().catch(() => {}));
     await card.getByRole('button').first().click();
     await expect(card).toHaveCount(0);
   });

@@ -152,9 +152,12 @@ router.post('/identity', async (req, res) => {
     return res.status(400).json({ error: 'Banned words are not allowed in names.' });
   }
 
+  // Re-anchor created_at on every lock: without it an upsert-conflict keeps the
+  // ORIGINAL timestamp, so a name locked again after expiry would instantly
+  // read as expired (5-hour window never restarts).
   const { error } = await supabase
     .from('device_identities')
-    .upsert({ device_id: deviceId, username: username.value });
+    .upsert({ device_id: deviceId, username: username.value, created_at: new Date().toISOString() });
 
   if (error) return res.status(500).json({ error: error.message });
   res.json({ ok: true });

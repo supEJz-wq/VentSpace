@@ -144,11 +144,13 @@ function Dashboard() {
 
   // ========== DELETE POST ==========
   const handleDeletePost = async (postId) => {
+    if (!window.confirm('Delete this post permanently? This cannot be undone.')) return;
     await deletePost(postId);
     setPosts(prev => prev.filter(p => p.id !== postId));
     const updatedMyIds = myPostIds.filter(id => id !== postId);
     setMyPostIds(updatedMyIds);
     localStorage.setItem('ventspace_my_posts', JSON.stringify(updatedMyIds));
+    alert('Post deleted.');
   };
 
   // ========== LIKE ==========
@@ -281,6 +283,7 @@ function Dashboard() {
     } else {
       await unreportPost(postId);
       setReportedPostIds(prev => prev.filter(id => id !== postId));
+      alert('Report removed — this post is no longer flagged for admins.');
     }
   };
 
